@@ -2,16 +2,22 @@ package com.example.demo.shell;
 
 import com.example.demo.account.dto.Account;
 import com.example.demo.account.service.AuthenticationService;
+import com.example.demo.price.service.PriceService;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
+
+import java.util.List;
 
 @ShellComponent
 public class MyCommands {
 
     private final AuthenticationService authenticationService;
+    private final PriceService priceService;
 
-    public MyCommands(AuthenticationService authenticationService) {
+    public MyCommands(AuthenticationService authenticationService, PriceService priceService) {
         this.authenticationService = authenticationService;
+        this.priceService = priceService;
     }
 
     @ShellMethod(key = "login", value = "Login with your ID and password")
@@ -38,5 +44,30 @@ public class MyCommands {
         } else {
             return "No user is currently logged in.";
         }
+    }
+
+    @ShellMethod(key = "city", value = "Show all available cities.")
+    public String city() {
+        List<String> cities = priceService.cities();
+        return String.join(", ", cities);
+    }
+
+    @ShellMethod(key = "sector", value = "Show all available sectors for a given city.")
+    public String sector(@ShellOption(help = "The name of the city.") String city) {
+        List<String> sectors = priceService.sectors(city);
+        return String.join(", ", sectors);
+    }
+
+    @ShellMethod(key = "price", value = "Show price info for a given city and sector.")
+    public String price(@ShellOption(help = "The name of the city.") String city,
+                        @ShellOption(help = "The name of the sector.") String sector) {
+        return priceService.price(city, sector).toString();
+    }
+
+    @ShellMethod(key = "bill-total", value = "Calculate the total bill for a given city, sector, and usage.")
+    public String billTotal(@ShellOption(help = "The name of the city.") String city,
+                            @ShellOption(help = "The name of the sector.") String sector,
+                            @ShellOption(help = "The usage in cubic meters.") int usage) {
+        return priceService.billTotal(city, sector, usage);
     }
 }

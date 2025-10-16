@@ -1,11 +1,17 @@
 package com.example.demo.price.formatter;
 
 import com.example.demo.price.dto.Price;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 
+@Component
+@Profile("kor")
+public class KoreanOutputFormatter implements OutPutFormatter {
 
-public class KoreanOutputFormatter {
-
+    @Override
     public String format(Price price, int usage) {
-        return null;
+        long totalBill = (long) price.getUnitPrice() * usage;
+        return String.format("지자체명: %s, 업종: %s, 사용량: %d, 총 요금: %,d원",
+                price.getCity(), price.getSector(), usage, totalBill);
     }
 }

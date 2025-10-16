@@ -14,4 +14,5 @@ public interface DataParser {
     Price price(String city, String sector);
 
     List<Account> accounts();
+
 }

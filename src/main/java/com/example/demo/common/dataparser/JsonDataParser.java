@@ -10,41 +10,68 @@ import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
-@ConditionalOnProperty(name = "file.type", havingValue = "json") // json일 때 활성화되도록 조건 추가
-public class JsonDataParser implements DataParser { // "implements DataParser" 추가
+@ConditionalOnProperty(name = "file.type", havingValue = "json")
+public class JsonDataParser implements DataParser {
 
     private final List<Account> accounts;
+    private final List<Price> prices;
 
     public JsonDataParser(FileProperties fileProperties) {
+        this.accounts = loadAccounts(fileProperties.getAccountPath());
+        this.prices = loadPrices(fileProperties.getPricePath());
+    }
+
+    private List<Account> loadAccounts(String path) {
         ObjectMapper mapper = new ObjectMapper();
         TypeReference<List<Account>> typeReference = new TypeReference<>() {};
-        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileProperties.getAccountPath())) {
-            this.accounts = mapper.readValue(inputStream, typeReference);
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(path)) {
+            return mapper.readValue(inputStream, typeReference);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to parse JSON file: " + fileProperties.getAccountPath(), e);
+            throw new RuntimeException("Failed to parse JSON file: " + path, e);
+        }
+    }
+
+    private List<Price> loadPrices(String path) {
+        ObjectMapper mapper = new ObjectMapper();
+        TypeReference<List<Price>> typeReference = new TypeReference<>() {};
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(path)) {
+            return mapper.readValue(inputStream, typeReference);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse JSON file: " + path, e);
         }
     }
 
     @Override
     public List<Account> accounts() {
-        return this.accounts; // 파싱된 결과를 반환합니다.
+        return this.accounts;
     }
 
-    // Price 관련 메서드는 아직 구현하지 않습니다.
     @Override
     public List<String> cities() {
-        return null;
+        return this.prices.stream()
+                .map(Price::getCity)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<String> sectors(String city) {
-        return null;
+        return this.prices.stream()
+                .filter(price -> price.getCity().equals(city))
+                .map(Price::getSector)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     @Override
     public Price price(String city, String sector) {
-        return null;
+        return this.prices.stream()
+                .filter(p -> p.getCity().equals(city) && p.getSector().equals(sector))
+                .findFirst()
+                .orElse(null);
     }
+
 }
