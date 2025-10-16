@@ -1,45 +1,42 @@
 package com.example.demo.shell;
 
+import com.example.demo.account.dto.Account;
+import com.example.demo.account.service.AuthenticationService;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
 @ShellComponent
 public class MyCommands {
 
-    @ShellMethod
+    private final AuthenticationService authenticationService;
+
+    public MyCommands(AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
+    }
+
+    @ShellMethod(key = "login", value = "Login with your ID and password")
     public String login(long id, String password) {
-        return null;
+        Account account = authenticationService.login(id, password);
+        if (account != null) {
+            return account.toString();
+        } else {
+            return "id or password not correct";
+        }
     }
 
-    @ShellMethod
+    @ShellMethod(key = "logout", value = "Logout from the current session")
     public String logout() {
-        return null;
+        authenticationService.logout();
+        return "good bye";
     }
 
-    @ShellMethod
+    @ShellMethod(key = "current-user", value = "Show current user")
     public String currentUser() {
-        return null;
+        Account account = authenticationService.getCurrentAccount();
+        if (account != null) {
+            return account.toString();
+        } else {
+            return "No user is currently logged in.";
+        }
     }
-
-    @ShellMethod
-    public String city() {
-        return null;
-    }
-
-    @ShellMethod
-    public String sector(String city) {
-        return null;
-    }
-
-    @ShellMethod
-    public String price(String city, String sector) {
-        return null;
-    }
-
-    @ShellMethod
-    public String billTotal(String city, String sector, int usage) {
-        return null;
-    }
-
-
 }
