@@ -93,3 +93,7 @@
 2025-10-16 15:35:55,303 INFO [main] c.e.d.p.a.PriceAop [PriceAop.java:41] 요청: sector, 사용자: 선도형, 인자: [동두천시]
 2025-10-16 16:19:23,456 INFO [main] c.e.d.p.a.PriceAop [PriceAop.java:42] ----- 선도형 MyCommands.currentUser()[] ----->
 2025-10-16 16:19:23,457 INFO [main] c.e.d.p.a.PriceAop [PriceAop.java:46] <----- 선도형 MyCommands.currentUser()(Account(id=1, password=1, name=선도형)) -----
+2025-10-16 16:23:27,112 INFO [main] c.e.d.p.a.PriceAop [PriceAop.java:42] ----- 선도형 MyCommands.city()[] ----->
+2025-10-16 16:23:27,113 INFO [main] c.e.d.p.a.PriceAop [PriceAop.java:46] <----- 선도형 MyCommands.city()([동두천시, 파주시, 광주시, 양주시, 단양군, 서산시, 논산시, 금산군, 정읍시, 나주시, 장흥군, 함평군, 완도군, 진도군, 청송군, 고령군, 예천군, 통영시, 사천시, 거제시, 고성군]) -----
+2025-10-16 16:23:27,114 INFO [main] c.e.d.p.a.PriceAop [PriceAop.java:42] ----- 선도형 MyCommands.sector(..)[동두천시] ----->
+2025-10-16 16:23:27,115 INFO [main] c.e.d.p.a.PriceAop [PriceAop.java:46] <----- 선도형 MyCommands.sector(..)([가정용, 일반용, 일반용(미), 전용공업용, 발전용]) -----
