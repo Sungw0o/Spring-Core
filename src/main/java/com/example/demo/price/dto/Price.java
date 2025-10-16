@@ -9,6 +9,7 @@ import lombok.ToString;
 @Setter
 @ToString
 public class Price {
+
     @JsonProperty("순번")
     long id;
     @JsonProperty("지자체명")

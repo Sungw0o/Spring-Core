@@ -2,6 +2,7 @@ package com.example.demo.price.aop;
 
 import com.example.demo.account.dto.Account;
 import com.example.demo.account.service.AuthenticationService;
+import com.example.demo.exception.UserNotLoggedInException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -33,7 +34,7 @@ public class PriceAop {
     public Object logUserRequest(ProceedingJoinPoint joinPoint) throws Throwable {
         Account currentAccount = authenticationService.getCurrentAccount();
         if (currentAccount == null) {
-            throw new IllegalStateException("로그인하지 않은 사용자는 이 기능을 사용할 수 없습니다.");
+            throw new UserNotLoggedInException("로그인하지 않은 사용자는 이 기능을 사용할 수 없습니다.");
         }
 
         String username = currentAccount.getName();

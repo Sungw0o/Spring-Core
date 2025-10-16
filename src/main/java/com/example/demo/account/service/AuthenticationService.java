@@ -20,7 +20,6 @@ public class AuthenticationService {
     }
 
     public Account login(Long id, String password) {
-        // 계정 목록에서 id와 password가 일치하는 첫 번째 사용자를 찾습니다.
         this.currentAccount = accounts.stream()
                 .filter(account -> Objects.equals(account.getId(), id) && Objects.equals(account.getPassword(), password))
                 .findFirst()

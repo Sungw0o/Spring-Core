@@ -2,6 +2,7 @@ package com.example.demo.common.dataparser;
 
 import com.example.demo.account.dto.Account;
 import com.example.demo.common.properties.FileProperties;
+import com.example.demo.exception.DataParseException;
 import com.example.demo.price.dto.Price;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -27,7 +28,7 @@ public class JsonDataParser implements DataParser {
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(path)) {
             return mapper.readValue(inputStream, typeReference);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to parse JSON file: " + path, e);
+            throw new DataParseException("Failed to parse JSON file: " + path, e);
         }
     }
 
@@ -39,7 +40,7 @@ public class JsonDataParser implements DataParser {
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(path)) {
             return mapper.readValue(inputStream, typeReference);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to parse JSON file: " + path, e);
+            throw new DataParseException("Failed to parse JSON file: " + path, e);
         }
     }
 
@@ -74,5 +75,4 @@ public class JsonDataParser implements DataParser {
                 .findFirst()
                 .orElse(null);
     }
-
 }

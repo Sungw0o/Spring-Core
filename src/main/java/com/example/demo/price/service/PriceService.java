@@ -1,6 +1,7 @@
 package com.example.demo.price.service;
 
 import com.example.demo.common.dataparser.DataParser;
+import com.example.demo.exception.PriceNotFoundException;
 import com.example.demo.price.dto.Price;
 import com.example.demo.price.formatter.OutPutFormatter;
 import lombok.AllArgsConstructor;
@@ -30,7 +31,7 @@ public class PriceService {
     public String billTotal(String city, String sector, int usage) {
         Price priceInfo = this.price(city, sector);
         if (priceInfo == null) {
-            return "해당하는 요금 정보를 찾을 수 없습니다.";
+            throw new PriceNotFoundException("해당하는 요금 정보를 찾을 수 없습니다.");
         }
 
         return outPutFormatter.format(priceInfo, usage);

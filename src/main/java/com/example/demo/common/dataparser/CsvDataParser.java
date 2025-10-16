@@ -1,15 +1,12 @@
 package com.example.demo.common.dataparser;
 
 import com.example.demo.account.dto.Account;
+import com.example.demo.exception.DataParseException;
 import com.example.demo.common.properties.FileProperties;
 import com.example.demo.price.dto.Price;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
-
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,13 +30,14 @@ public class CsvDataParser implements DataParser {
                     .collect(Collectors.toList());
 
         } catch (Exception e) {
-            throw new RuntimeException("Failed to parse CSV file: " + path, e);
+            throw new DataParseException("Failed to parse CSV file: " + path, e);
         }
     }
 
     private List<Price> loadPrices(String path) {
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(path);
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"))) {
+
             return reader.lines()
                     .skip(1)
                     .map(line -> {
@@ -50,18 +48,15 @@ public class CsvDataParser implements DataParser {
                         price.setSector(parts[2].trim());
 
                         String unitPriceStr = parts[6].trim();
-                        if (unitPriceStr != null && !unitPriceStr.isEmpty()) {
+                        if (!unitPriceStr.isEmpty()) {
                             price.setUnitPrice(Integer.parseInt(unitPriceStr));
                         }
-
                         return price;
                     })
                     .collect(Collectors.toList());
 
         } catch (Exception e) {
-            System.err.println("Failed to parse CSV file: " + path);
-            e.printStackTrace();
-            return Collections.emptyList();
+            throw new DataParseException("Failed to parse CSV file: " + path, e);
         }
     }
 
