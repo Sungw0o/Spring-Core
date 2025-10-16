@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: demo
+  shell:
+    interactive:
+      enabled: true
+
+  profiles:
+    active: kor,csv

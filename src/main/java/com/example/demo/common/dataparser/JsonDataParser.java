@@ -4,16 +4,13 @@ import com.example.demo.account.dto.Account;
 import com.example.demo.common.properties.FileProperties;
 import com.example.demo.price.dto.Price;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
-@ConditionalOnProperty(name = "file.type", havingValue = "json")
 public class JsonDataParser implements DataParser {
 
     private final List<Account> accounts;
@@ -36,6 +33,8 @@ public class JsonDataParser implements DataParser {
 
     private List<Price> loadPrices(String path) {
         ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
         TypeReference<List<Price>> typeReference = new TypeReference<>() {};
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(path)) {
             return mapper.readValue(inputStream, typeReference);
@@ -53,6 +52,7 @@ public class JsonDataParser implements DataParser {
     public List<String> cities() {
         return this.prices.stream()
                 .map(Price::getCity)
+                .map(String::trim)
                 .distinct()
                 .collect(Collectors.toList());
     }
@@ -60,8 +60,8 @@ public class JsonDataParser implements DataParser {
     @Override
     public List<String> sectors(String city) {
         return this.prices.stream()
-                .filter(price -> price.getCity().equals(city))
-                .map(Price::getSector)
+                .filter(price -> price.getCity() != null && price.getCity().trim().equals(city))
+                .map(price -> price.getSector().trim())
                 .distinct()
                 .collect(Collectors.toList());
     }
@@ -69,7 +69,8 @@ public class JsonDataParser implements DataParser {
     @Override
     public Price price(String city, String sector) {
         return this.prices.stream()
-                .filter(p -> p.getCity().equals(city) && p.getSector().equals(sector))
+                .filter(price -> price.getCity() != null && price.getCity().trim().equals(city)
+                        && price.getSector() != null && price.getSector().trim().equals(sector))
                 .findFirst()
                 .orElse(null);
     }

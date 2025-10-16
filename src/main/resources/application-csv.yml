@@ -1,0 +1,4 @@
+file:
+  type: csv
+  price-path: price.csv
+  account-path: account.csv

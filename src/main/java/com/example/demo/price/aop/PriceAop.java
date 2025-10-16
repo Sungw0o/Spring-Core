@@ -2,13 +2,15 @@ package com.example.demo.price.aop;
 
 import com.example.demo.account.dto.Account;
 import com.example.demo.account.service.AuthenticationService;
-import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
 
 @Aspect
 @Component
@@ -27,17 +29,22 @@ public class PriceAop {
             "&& !execution(* com.example.demo.shell.MyCommands.logout(..))")
     public void priceRequests() {}
 
-    @Before("priceRequests()")
-    public void logAndValidateRequest(JoinPoint joinPoint) {
+    @Around("priceRequests()")
+    public Object logUserRequest(ProceedingJoinPoint joinPoint) throws Throwable {
         Account currentAccount = authenticationService.getCurrentAccount();
         if (currentAccount == null) {
             throw new IllegalStateException("로그인하지 않은 사용자는 이 기능을 사용할 수 없습니다.");
         }
 
         String username = currentAccount.getName();
-        String methodName = joinPoint.getSignature().getName();
-        Object[] args = joinPoint.getArgs();
+        String signature = joinPoint.getSignature().toShortString();
+        String args = Arrays.toString(joinPoint.getArgs());
+        logger.info("----- {} {}{} ----->", username, signature, args);
 
-        logger.info("요청: {}, 사용자: {}, 인자: {}", methodName, username, args);
+        Object result = joinPoint.proceed();
+
+        logger.info("<----- {} {}({}) -----", username, signature, result);
+
+        return result;
     }
 }

@@ -3,10 +3,6 @@ package com.example.demo.common.dataparser;
 import com.example.demo.account.dto.Account;
 import com.example.demo.common.properties.FileProperties;
 import com.example.demo.price.dto.Price;
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -17,8 +13,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
-@ConditionalOnProperty(name = "file.type", havingValue = "csv")
 public class CsvDataParser implements DataParser {
 
     private final List<Account> accounts;
@@ -44,14 +38,26 @@ public class CsvDataParser implements DataParser {
     }
 
     private List<Price> loadPrices(String path) {
-        CsvMapper csvMapper = new CsvMapper();
-        CsvSchema schema = CsvSchema.emptySchema().withHeader();
-        ObjectReader reader = csvMapper.readerFor(Price.class).with(schema);
-
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(path);
-             InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "UTF-8")) {
-            MappingIterator<Price> iterator = reader.readValues(inputStreamReader);
-            return iterator.readAll();
+             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"))) {
+            return reader.lines()
+                    .skip(1)
+                    .map(line -> {
+                        String[] parts = line.split(",", -1);
+                        Price price = new Price();
+                        price.setId(Long.parseLong(parts[0].trim()));
+                        price.setCity(parts[1].trim());
+                        price.setSector(parts[2].trim());
+
+                        String unitPriceStr = parts[6].trim();
+                        if (unitPriceStr != null && !unitPriceStr.isEmpty()) {
+                            price.setUnitPrice(Integer.parseInt(unitPriceStr));
+                        }
+
+                        return price;
+                    })
+                    .collect(Collectors.toList());
+
         } catch (Exception e) {
             System.err.println("Failed to parse CSV file: " + path);
             e.printStackTrace();
@@ -77,6 +83,7 @@ public class CsvDataParser implements DataParser {
     public List<String> cities() {
         return this.prices.stream()
                 .map(Price::getCity)
+                .map(String::trim)
                 .distinct()
                 .collect(Collectors.toList());
     }
@@ -84,8 +91,8 @@ public class CsvDataParser implements DataParser {
     @Override
     public List<String> sectors(String city) {
         return this.prices.stream()
-                .filter(price -> price.getCity().equals(city))
-                .map(Price::getSector)
+                .filter(price -> price.getCity() != null && price.getCity().trim().equals(city))
+                .map(price -> price.getSector().trim())
                 .distinct()
                 .collect(Collectors.toList());
     }
@@ -93,7 +100,8 @@ public class CsvDataParser implements DataParser {
     @Override
     public Price price(String city, String sector) {
         return this.prices.stream()
-                .filter(price -> price.getCity().equals(city) && price.getSector().equals(sector))
+                .filter(price -> price.getCity() != null && price.getCity().trim().equals(city)
+                        && price.getSector() != null && price.getSector().trim().equals(sector))
                 .findFirst()
                 .orElse(null);
     }

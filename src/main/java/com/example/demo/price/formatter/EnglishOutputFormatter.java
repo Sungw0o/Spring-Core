@@ -11,7 +11,10 @@ public class EnglishOutputFormatter implements OutPutFormatter {
     @Override
     public String format(Price price, int usage) {
         long totalBill = (long) price.getUnitPrice() * usage;
-        return String.format("City: %s, Sector: %s, Usage: %d, Total Bill: $%,d",
-                price.getCity(), price.getSector(), usage, totalBill);
+        return String.format("city: %s, sector: %s, unit price(won): %d, bill total(won): %d",
+                price.getCity().trim(),
+                price.getSector().trim(),
+                price.getUnitPrice(),
+                totalBill);
     }
 }

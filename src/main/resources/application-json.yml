@@ -1,0 +1,4 @@
+file:
+  type: json
+  price-path: price.json
+  account-path: account.json

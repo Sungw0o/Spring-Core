@@ -2,6 +2,7 @@ package com.example.demo.shell;
 
 import com.example.demo.account.dto.Account;
 import com.example.demo.account.service.AuthenticationService;
+import com.example.demo.price.dto.Price; // Price DTO를 import 합니다.
 import com.example.demo.price.service.PriceService;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
@@ -49,19 +50,25 @@ public class MyCommands {
     @ShellMethod(key = "city", value = "Show all available cities.")
     public String city() {
         List<String> cities = priceService.cities();
-        return String.join(", ", cities);
+        return formatListToString(cities);
     }
 
     @ShellMethod(key = "sector", value = "Show all available sectors for a given city.")
     public String sector(@ShellOption(help = "The name of the city.") String city) {
         List<String> sectors = priceService.sectors(city);
-        return String.join(", ", sectors);
+        return formatListToString(sectors);
     }
+
 
     @ShellMethod(key = "price", value = "Show price info for a given city and sector.")
     public String price(@ShellOption(help = "The name of the city.") String city,
                         @ShellOption(help = "The name of the sector.") String sector) {
-        return priceService.price(city, sector).toString();
+        Price priceInfo = priceService.price(city, sector);
+        if (priceInfo != null) {
+            return priceInfo.toString();
+        } else {
+            return "해당하는 요금 정보를 찾을 수 없습니다.";
+        }
     }
 
     @ShellMethod(key = "bill-total", value = "Calculate the total bill for a given city, sector, and usage.")
@@ -69,5 +76,12 @@ public class MyCommands {
                             @ShellOption(help = "The name of the sector.") String sector,
                             @ShellOption(help = "The usage in cubic meters.") int usage) {
         return priceService.billTotal(city, sector, usage);
+    }
+
+    private String formatListToString(List<String> list) {
+        if (list == null || list.isEmpty()) {
+            return "[]";
+        }
+        return "[" + String.join(", ", list) + "]";
     }
 }

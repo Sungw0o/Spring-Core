@@ -31,6 +31,4 @@ public class AuthenticationService {
     public void logout() {
         this.currentAccount = null;
     }
-
-
 }

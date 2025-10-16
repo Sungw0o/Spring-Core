@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -29,12 +28,11 @@ public class PriceService {
     }
 
     public String billTotal(String city, String sector, int usage) {
-        Price price = price(city, sector);
-        if (price == null) {
+        Price priceInfo = this.price(city, sector);
+        if (priceInfo == null) {
             return "해당하는 요금 정보를 찾을 수 없습니다.";
         }
-        long totalBill = (long) price.getUnitPrice() * usage;
-        return String.valueOf(totalBill);
-    }
 
+        return outPutFormatter.format(priceInfo, usage);
+    }
 }

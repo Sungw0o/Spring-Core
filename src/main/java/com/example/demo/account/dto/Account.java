@@ -10,6 +10,7 @@ import lombok.ToString;
 @Setter
 @ToString
 public class Account {
+
     @JsonProperty("아이디")
     long id;
     @JsonProperty("비밀번호")
